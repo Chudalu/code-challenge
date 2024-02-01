@@ -22,10 +22,10 @@ export class Restaurant extends Model {
     @Column(DataType.TEXT)
     address: string;
 
-    @Column(DataType.INTEGER)
+    @Column(DataType.DOUBLE)
     longitude: number;
 
-    @Column(DataType.INTEGER)
+    @Column(DataType.DOUBLE)
     latitude: number;
 
     @Column(DataType.STRING)
@@ -37,7 +37,10 @@ export class Restaurant extends Model {
     @Column(DataType.STRING)
     ratings: RatingEnum
 
-    @Column(DataType.STRING)
+    @Column({
+        type: DataType.STRING,
+        defaultValue: GenericStatus.ACTIVE
+    })
     status: GenericStatus
 
     @UpdatedAt

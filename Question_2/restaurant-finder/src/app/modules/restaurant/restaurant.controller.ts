@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseUUIDPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, Query, ParseUUIDPipe, Put } from '@nestjs/common';
 import { RestaurantService } from './restaurant.service';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
@@ -8,8 +8,11 @@ import { ApiResponseDto } from 'src/app/models/dto/api-response.dto';
 import { RestaurantsDto } from 'src/app/models/dto/restaurants.dto';
 import { ApiTags } from '@nestjs/swagger';
 
-@ApiTags('restaurant')
-@Controller('restaurant')
+@ApiTags('restaurants')
+@Controller({
+  path: 'restaurants',
+  version: '1'
+})
 export class RestaurantController {
   constructor(private readonly restaurantService: RestaurantService) {}
 
@@ -28,7 +31,7 @@ export class RestaurantController {
     return await this.restaurantService.findOne(uuid);
   }
 
-  @Patch(':uuid')
+  @Put(':uuid')
   async update(@Param('uuid', new ParseUUIDPipe()) uuid: string, @Body() updateRestaurantDto: UpdateRestaurantDto): Promise<RestaurantDto> {
     return await this.restaurantService.update(uuid, updateRestaurantDto);
   }

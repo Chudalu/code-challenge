@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateRestaurantDto } from './dto/create-restaurant.dto';
 import { UpdateRestaurantDto } from './dto/update-restaurant.dto';
-import haversineDistance from 'haversine-distance';
+import * as haversineDistance from 'haversine-distance';
 import { InjectModel } from '@nestjs/sequelize';
 import { Restaurant } from './entities/restaurant.entity';
 import { RestaurantDto } from './dto/restaurant.dto';
@@ -9,6 +9,7 @@ import { GenericStatus } from 'src/app/models/enum/generic-status.enum';
 import { ApiResponseDto } from 'src/app/models/dto/api-response.dto';
 import { RestaurantQuery } from './dto/restaurant-query.dto';
 import { RestaurantsDto } from 'src/app/models/dto/restaurants.dto';
+import { Op } from 'sequelize';
 
 @Injectable()
 export class RestaurantService {
@@ -29,9 +30,20 @@ export class RestaurantService {
     let longitude = restaurantQuery.longitude;
     let latitude = restaurantQuery.latitude;
     let distance = restaurantQuery.distance;
-    // Search for restuarant in city and using other search parameters
-    let searchQuery = this.removeEmpty({...restaurantQuery, longitude: null, latitude: null, distance: null });
-    let restaurantsInCity = await this.RestaurantModel.findAll({ where: { ...searchQuery, status: GenericStatus.ACTIVE } });
+    // Search for restuarant in city by using Like operator in address and using other search parameters
+    let searchQuery = this.removeEmpty({
+      ...restaurantQuery, 
+      address: restaurantQuery.city,
+      //ensure deleted restaurants are not returned
+      status: GenericStatus.ACTIVE,
+      //set these to null, which are cleaned off by the function
+      longitude: null, 
+      latitude: null, 
+      distance: null,
+      city: null
+    });
+    searchQuery = this.addLikeCheck(searchQuery);
+    let restaurantsInCity = await this.RestaurantModel.findAll({ where: searchQuery });
     //return not found error if no restaurant is returned
     if (!(restaurantsInCity.length > 0)) throw new NotFoundException('No restaurant was found from your search request');
     //if any value to calculate distance is missing, return all restaurant in city (or using other search params )
@@ -80,12 +92,19 @@ export class RestaurantService {
   }
 
   //remove null or undefined pair in object
-  private removeEmpty(obj: RestaurantQuery) {
+  private removeEmpty(obj: any) {
     return Object.entries(obj)
       .filter(([_, v]) => v != null && v != '' && v != undefined)
       .reduce(
         (acc, [k, v]) => ({ ...acc, [k]: v === Object(v) ? this.removeEmpty(v) : v }),
         {}
       );
+  }
+
+  //let city search params resolve to address Like searches
+  private addLikeCheck = (obj: any) => {
+      if (obj && obj.address)
+      obj.address = { [Op.iLike]: `%${obj.address}%` }
+      return obj;
   }
 }
