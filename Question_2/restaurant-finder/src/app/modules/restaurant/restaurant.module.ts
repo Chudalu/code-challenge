@@ -6,6 +6,8 @@ import { ModelsModule } from 'src/app/models/models.module';
 @Module({
   controllers: [RestaurantController],
   providers: [RestaurantService],
-  imports: [ ModelsModule ]
+  imports: [
+    ModelsModule 
+  ]
 })
 export class RestaurantModule {}

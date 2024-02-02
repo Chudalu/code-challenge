@@ -6,6 +6,8 @@ import ApplicationConfig from './app.config';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { ModelsModule } from './app/models/models.module';
 import { RestaurantModule } from './app/modules/restaurant/restaurant.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
@@ -19,10 +21,17 @@ import { RestaurantModule } from './app/modules/restaurant/restaurant.module';
       synchronize: true,
       logging: false
     }),
+    ThrottlerModule.forRoot([{
+      ttl: 1000,
+      limit: 5,
+    }]),
     ModelsModule,
     RestaurantModule,
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [
+    { provide: APP_GUARD, useClass: ThrottlerGuard },
+    AppService
+  ],
 })
 export class AppModule {}
