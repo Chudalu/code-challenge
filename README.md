@@ -22,6 +22,6 @@ A Node server was developed with Nestjs Framework. To run please do the followin
 - Versioning is handled 
 - Optional restaurant properties like cuisineType, priceRange, ratings were implemented
 - Rate limiting was implemented using ThrottlerModule
-- Documentation is implemented using Swagger Documentation. Visit - http://localhost:3500/docs
+- Documentation is implemented using Swagger Documentation. Visit - http://localhost:3000/docs
 - APIs were simple CRUD operations which were tested with Postman.
 - Code sits on a github repository.
