@@ -3,6 +3,7 @@ import { AppModule } from './app.module';
 import helmet from 'helmet';
 import { DocumentBuilder, SwaggerDocumentOptions, SwaggerModule } from '@nestjs/swagger';
 import { ValidationPipe, VersioningType } from '@nestjs/common';
+import ApplicationConfig from './app.config';
 
 async function bootstrap() {
   let globalPrefix = 'api';
@@ -25,6 +26,6 @@ async function bootstrap() {
   .build();
   let document = SwaggerModule.createDocument(app, swaggerConfig, options);
   SwaggerModule.setup('docs', app, document);
-  await app.listen(3000);
+  await app.listen(ApplicationConfig().port);
 }
 bootstrap();
